@@ -12,7 +12,8 @@ Create a .env file in the repository folder. Update the env variable value as ne
 
 ```
 SSH_KEY=/home/user/.ssh/id_rsa
-BACKUP_USER=some_user
+BACKUP_USER=backup_user
+BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
 BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=mypassphrase
 BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE=mypassphrase
 ```
