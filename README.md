@@ -13,7 +13,8 @@ Create a .env file in the repository folder. Update the env variable value as ne
 ```
 SSH_KEY=/home/user/.ssh/id_rsa
 BACKUP_USER=some_user
-BORG_REPOSITORY_PASSPHRASE=mypassphrase
+BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=mypassphrase
+BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE=mypassphrase
 ```
 
 Create a hosts file in the repository folder. Update the variable values as needed.
