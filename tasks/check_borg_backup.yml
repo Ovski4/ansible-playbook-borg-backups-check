@@ -1,0 +1,58 @@
+- name: Assert mandatory variables are defined
+  assert:
+    that:
+      - borg_repository_name is defined
+      - borg_repository_passphrase is defined
+      - borg_repository_parent_folder is defined
+
+- name: List borg backups
+  ansible.builtin.command:
+    cmd: "borg list {{ borg_repository_name }}"
+    chdir: "{{ borg_repository_parent_folder }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
+  changed_when: false
+  register: backup_list
+
+- name: Get the last backup name
+  ansible.builtin.set_fact:
+    last_backup: "{{ backup_list.stdout_lines[-1].split()[0] }}"
+
+- name: Set date variables
+  ansible.builtin.set_fact:
+    last_backup_date: "{{ last_backup | regex_replace('.*_([0-9]{4}-[0-9]{2}-[0-9]{2})_.*', '\\1') }}"
+    today: "{{ lookup('pipe', 'date -u +%Y-%m-%d') }}"
+    yesterday: "{{ lookup('pipe', 'date -u -d yesterday +%Y-%m-%d') }}"
+
+- name: "Set whether or not yesterday's backup is recent enough"
+  ansible.builtin.set_fact:
+    backup_recent: "{{ last_backup_date in [today, yesterday] }}"
+
+- name: Fail if last backup is older than yesterday
+  ansible.builtin.fail:
+    msg: "Last backup is too old: {{ last_backup_date }}"
+  when: not backup_recent
+
+- name: Creates mount_point directory
+  ansible.builtin.file:
+    path: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point"
+    state: directory
+
+- name: Mount the last backup from the list
+  ansible.builtin.command:
+    cmd: "borg mount {{ borg_repository_name }}::{{ last_backup }} mount_point"
+    chdir: "{{ borg_repository_parent_folder }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
+
+- name: Get the last dump file created date
+  ansible.builtin.command:
+    cmd: "stat -c %y *.sql | cut -d' ' -f1 | sort | tail -n1"
+    chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ borg_repository_dump_path | regex_replace('^\\/', '') }}"
+  register: last_dump_date
+  changed_when: false
+
+- name: Unmount the mount point
+  ansible.builtin.command:
+    cmd: "borg umount mount_point"
+    chdir: "{{ borg_repository_parent_folder }}"

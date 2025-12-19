@@ -1,0 +1,18 @@
+name: 'borg_backup_checks'
+
+services:
+
+  play:
+    image: ovski/ansible:v2.13.3
+    volumes:
+      - ./:/var/www/ansible
+      - ./hosts:/etc/ansible/hosts
+      - ${SSH_KEY}:/root/.ssh/id_rsa
+    command: >
+      ansible-playbook /var/www/ansible/main.yml
+      -e backup_user=${BACKUP_USER}
+      -e borg_repository_parent_folder=${BORG_REPOSITORY_PARENT_FOLDER}
+      -e borg_repository_passphrase=${BORG_REPOSITORY_PASSPHRASE}
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+    profiles: [ansible]

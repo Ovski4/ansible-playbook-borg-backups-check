@@ -1,0 +1,11 @@
+---
+- hosts: backup_servers
+  become: true
+  become_user: "{{ backup_user }}"
+  tasks:
+    - name: Check Nextcloud Borg Backup
+      ansible.builtin.include_tasks:
+        file: ./tasks/check_borg_backup.yml
+      vars:
+        borg_repository_name: nextcloud
+        borg_repository_dump_path: /var/docker_volumes/nextcloud
