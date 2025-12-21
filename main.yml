@@ -31,6 +31,7 @@
             host: "{{ mail_host }}"
             port: "{{ mail_port }}"
             password: "{{ mail_password }}"
+            username: "{{ mail_from }}"
             from: "{{ mail_from }}"
             to: "{{ mail_to }}"
             subject: Some backup checks failed
