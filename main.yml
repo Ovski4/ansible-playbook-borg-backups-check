@@ -27,11 +27,11 @@
               label: "{{ item.borg_repository_name }}"
       rescue:
         - name: Send a mail on failure
-          mail:
+          community.general.mail:
             host: "{{ mail_host }}"
-            port: "{{mail_port }}"
-            username: "{{ mail_username }}"
+            port: "{{ mail_port }}"
             password: "{{ mail_password }}"
+            from: "{{ mail_from }}"
             to: "{{ mail_to }}"
             subject: Some backup checks failed
             body: "Some backup checks failed on server. Please check the semaphore logs for more details."
