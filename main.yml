@@ -14,13 +14,24 @@
         borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
 
   tasks:
-    - name: "Check backup"
-      ansible.builtin.include_tasks:
-        file: ./tasks/check_borg_backup.yml
-      loop: "{{ backup_configs }}"
-      vars:
-        borg_repository_name: "{{ item.borg_repository_name }}"
-        borg_repository_dump_path: "{{ item.borg_repository_dump_path }}"
-        borg_repository_passphrase: "{{ item.borg_repository_passphrase }}"
-      loop_control:
-          label: "{{ item.borg_repository_name }}"
+    - block:
+        - name: "Check backup"
+          ansible.builtin.include_tasks:
+            file: ./tasks/check_borg_backup.yml
+          loop: "{{ backup_configs }}"
+          vars:
+            borg_repository_name: "{{ item.borg_repository_name }}"
+            borg_repository_dump_path: "{{ item.borg_repository_dump_path }}"
+            borg_repository_passphrase: "{{ item.borg_repository_passphrase }}"
+          loop_control:
+              label: "{{ item.borg_repository_name }}"
+      rescue:
+        - name: Send a mail on failure
+          mail:
+            host: "{{ mail_host }}"
+            port: "{{mail_port }}"
+            username: "{{ mail_username }}"
+            password: "{{ mail_password }}"
+            to: "{{ mail_to }}"
+            subject: Some backup checks failed
+            body: "Some backup checks failed on server. Please check the semaphore logs for more details."
