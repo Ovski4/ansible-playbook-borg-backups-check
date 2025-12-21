@@ -26,7 +26,7 @@
           loop_control:
               label: "{{ item.borg_repository_name }}"
       rescue:
-        - name: Send a mail on failure
+        - name: Send an mail on failure
           community.general.mail:
             host: "{{ mail_host }}"
             port: "{{ mail_port }}"
@@ -36,3 +36,7 @@
             to: "{{ mail_to }}"
             subject: Some backup checks failed
             body: "Some backup checks failed on server. Please check the semaphore logs for more details."
+
+        - name: Report failure
+          ansible.builtin.fail:
+            msg: "Some backup checks failed"
