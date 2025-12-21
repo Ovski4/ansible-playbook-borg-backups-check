@@ -2,19 +2,25 @@
 - hosts: backup_servers
   become: true
   become_user: "{{ backup_user }}"
-  tasks:
-    - name: Check baptiste accounts Backup
-      ansible.builtin.include_tasks:
-        file: ./tasks/check_borg_backup.yml
-      vars:
-        borg_repository_name: baptiste_accounts
+
+  vars:
+    backup_configs:
+      - borg_repository_name: baptiste_accounts
         borg_repository_dump_path: /var/docker_volumes/expenses_categorizer
         borg_repository_passphrase: "{{ borg_repository_baptiste_accounts_passphrase }}"
 
-    - name: Check Nextcloud Borg Backup
-      ansible.builtin.include_tasks:
-        file: ./tasks/check_borg_backup.yml
-      vars:
-        borg_repository_name: nextcloud
+      - borg_repository_name: nextcloud
         borg_repository_dump_path: /var/docker_volumes/nextcloud
         borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
+
+  tasks:
+    - name: "Check backup"
+      ansible.builtin.include_tasks:
+        file: ./tasks/check_borg_backup.yml
+      loop: "{{ backup_configs }}"
+      vars:
+        borg_repository_name: "{{ item.borg_repository_name }}"
+        borg_repository_dump_path: "{{ item.borg_repository_dump_path }}"
+        borg_repository_passphrase: "{{ item.borg_repository_passphrase }}"
+      loop_control:
+          label: "{{ item.borg_repository_name }}"
