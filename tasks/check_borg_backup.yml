@@ -15,27 +15,27 @@
   register: backup_list
 
 ## Start check 1 - Check if the last borg backup is recent enough (today or yesterday)
+- name: "{{ borg_repository_name }} - Get the last borg backup name"
+  ansible.builtin.set_fact:
+    last_borg_backup_name: "{{ backup_list.stdout_lines[-1].split()[0] }}"
+
+- name: "{{ borg_repository_name }} - Set date variables"
+  ansible.builtin.set_fact:
+    last_borg_backup_date: "{{ last_borg_backup_name | regex_replace('.*_([0-9]{4}-[0-9]{2}-[0-9]{2})_.*', '\\1') }}"
+    today: "{{ lookup('pipe', 'date -u +%Y-%m-%d') }}"
+    yesterday: "{{ lookup('pipe', 'date -u -d yesterday +%Y-%m-%d') }}"
+
+- name: "{{ borg_repository_name }} - Set whether or not the last backup is recent enough"
+  ansible.builtin.set_fact:
+    last_borg_backup_is_recent: "{{ last_borg_backup_date in [today, yesterday] }}"
+
+- name: "{{ borg_repository_name }} - Fail if last backup is older than yesterday"
+  ansible.builtin.fail:
+    msg: "Last backup is too old: {{ last_borg_backup_date }}"
+  when: not last_borg_backup_is_recent
+## End check 1
+
 - block:
-    - name: "{{ borg_repository_name }} - Get the last borg backup name"
-      ansible.builtin.set_fact:
-        last_borg_backup_name: "{{ backup_list.stdout_lines[-1].split()[0] }}"
-
-    - name: "{{ borg_repository_name }} - Set date variables"
-      ansible.builtin.set_fact:
-        last_borg_backup_date: "{{ last_borg_backup_name | regex_replace('.*_([0-9]{4}-[0-9]{2}-[0-9]{2})_.*', '\\1') }}"
-        today: "{{ lookup('pipe', 'date -u +%Y-%m-%d') }}"
-        yesterday: "{{ lookup('pipe', 'date -u -d yesterday +%Y-%m-%d') }}"
-
-    - name: "{{ borg_repository_name }} - Set whether or not the last backup is recent enough"
-      ansible.builtin.set_fact:
-        last_borg_backup_is_recent: "{{ last_borg_backup_date in [today, yesterday] }}"
-
-    - name: "{{ borg_repository_name }} - Fail if last backup is older than yesterday"
-      ansible.builtin.fail:
-        msg: "Last backup is too old: {{ last_borg_backup_date }}"
-      when: not last_borg_backup_is_recent
-    ## End check 1
-
     - name: "{{ borg_repository_name }} - Creates mount_point directory"
       ansible.builtin.file:
         path: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point"
@@ -95,4 +95,4 @@
       ansible.builtin.command:
         cmd: "borg umount mount_point"
         chdir: "{{ borg_repository_parent_folder }}"
-  when: borg_repository_dump_path is defined
+  when: item.borg_repository_dump_path is defined
