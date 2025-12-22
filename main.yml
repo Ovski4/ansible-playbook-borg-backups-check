@@ -5,6 +5,9 @@
 
   vars:
     backup_configs:
+      - borg_repository_name: jellyfin
+        borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+
       - borg_repository_name: semaphore
         borg_repository_passphrase: "{{ borg_repository_semaphore_passphrase }}"
 
