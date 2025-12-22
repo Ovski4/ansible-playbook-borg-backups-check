@@ -14,6 +14,7 @@ services:
       -e borg_repository_parent_folder=${BORG_REPOSITORY_PARENT_FOLDER}
       -e borg_repository_nextcloud_passphrase=${BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE}
       -e borg_repository_baptiste_accounts_passphrase=${BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE}
+      -e borg_repository_semaphore_passphrase=${BORG_REPOSITORY_SEMAPHORE_PASSPHRASE}
     environment:
       ANSIBLE_HOST_KEY_CHECKING: "False"
     profiles: [ansible]

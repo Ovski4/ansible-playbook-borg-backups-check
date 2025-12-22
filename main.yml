@@ -5,6 +5,9 @@
 
   vars:
     backup_configs:
+      - borg_repository_name: semaphore
+        borg_repository_passphrase: "{{ borg_repository_semaphore_passphrase }}"
+
       - borg_repository_name: baptiste_accounts
         borg_repository_dump_path: /var/docker_volumes/expenses_categorizer
         borg_repository_passphrase: "{{ borg_repository_baptiste_accounts_passphrase }}"
@@ -26,7 +29,7 @@
           loop_control:
               label: "{{ item.borg_repository_name }}"
       rescue:
-        - name: Send an mail on failure
+        - name: Send a mail on failure
           community.general.mail:
             host: "{{ mail_host }}"
             port: "{{ mail_port }}"
