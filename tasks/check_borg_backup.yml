@@ -38,8 +38,8 @@
 ## Start check 2 - Verifies the consistency of a repository and its archives.
 #  https://borgbackup.readthedocs.io/en/stable/usage/check.html
 - name: Print time before borg check
-  command: date '+%Y-%m-%d %H:%M:%S'
-  changed_when: false
+  debug:
+    msg: "Start time: {{ lookup('pipe', 'date +%Y-%m-%d %H:%M:%S') }}"
 
 - name: "{{ borg_repository_name }} - Check borg backup"
   ansible.builtin.command:
@@ -50,8 +50,8 @@
   changed_when: false
 
 - name: Print time after borg check
-  command: date '+%Y-%m-%d %H:%M:%S'
-  changed_when: false
+  debug:
+    msg: "End time: {{ lookup('pipe', 'date +%Y-%m-%d %H:%M:%S') }}"
 ## End check 2
 
 - block:
