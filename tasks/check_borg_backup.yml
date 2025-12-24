@@ -35,13 +35,32 @@
   when: not last_borg_backup_is_recent
 ## End check 1
 
+## Start check 2 - Verifies the consistency of a repository and its archives.
+#  https://borgbackup.readthedocs.io/en/stable/usage/check.html
+- name: Print time before borg check
+  command: date '+%Y-%m-%d %H:%M:%S'
+  changed_when: false
+
+- name: "{{ borg_repository_name }} - Check borg backup"
+  ansible.builtin.command:
+    cmd: "borg check {{ borg_repository_name }}"
+    chdir: "{{ borg_repository_parent_folder }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
+  changed_when: false
+
+- name: Print time after borg check
+  command: date '+%Y-%m-%d %H:%M:%S'
+  changed_when: false
+## End check 2
+
 - block:
     - name: "{{ borg_repository_name }} - Creates mount_point directory"
       ansible.builtin.file:
         path: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point"
         state: directory
 
-    ## Start check 2 - Check if the last dump inside the last borg backup is recent enough (today or yesterday)
+    ## Start check 3 - Check if the last dump inside the last borg backup is recent enough (today or yesterday)
     - name: "{{ borg_repository_name }} - Mount the last backup from the list"
       ansible.builtin.command:
         cmd: "borg mount {{ borg_repository_name }}::{{ last_borg_backup_name }} mount_point"
@@ -71,9 +90,9 @@
       ansible.builtin.fail:
         msg: "Last dump is too old: {{ last_dump_date_command.stdout }}"
       when: not last_dump_is_recent
-    ## End check 2
+    ## End check 3
 
-    ## Start check 3 - Check if the comment at the end of the dump matches the last dump file date
+    ## Start check 4 - Check if the comment at the end of the dump matches the last dump file date
     - name: "{{ borg_repository_name }} - Get the last line from the last dump"
       ansible.builtin.shell:
         cmd: "tail -n 1 {{ last_dump_file_name_command.stdout }}"
@@ -89,7 +108,7 @@
       ansible.builtin.fail:
         msg: "Comment from last dump doesn't match with the dump file date."
       when: last_dump_comment_date != last_dump_date_command.stdout
-    ## End check 3
+    ## End check 4
 
     - name: "{{ borg_repository_name }} - Unmount the mount point"
       ansible.builtin.command:
