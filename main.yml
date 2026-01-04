@@ -3,25 +3,6 @@
   become: true
   become_user: "{{ backup_user }}"
 
-  vars:
-    backup_configs:
-      - borg_repository_name: jellyfin
-        borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
-
-      - borg_repository_name: elasticsearch
-        borg_repository_passphrase: "{{ borg_repository_elasticsearch_passphrase }}"
-
-      - borg_repository_name: semaphore
-        borg_repository_passphrase: "{{ borg_repository_semaphore_passphrase }}"
-
-      - borg_repository_name: baptiste_accounts
-        borg_repository_dump_path: /var/docker_volumes/expenses_categorizer
-        borg_repository_passphrase: "{{ borg_repository_baptiste_accounts_passphrase }}"
-
-      - borg_repository_name: nextcloud
-        borg_repository_dump_path: /var/docker_volumes/nextcloud
-        borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
-
   tasks:
     - block:
         - name: "Check backup"

@@ -79,14 +79,14 @@
     - name: "{{ borg_repository_name }} - Get the last dump file name"
       ansible.builtin.shell:
         cmd: "ls -t *.sql | head -n1"
-        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ borg_repository_dump_path | regex_replace('^\\/', '') }}"
+        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
       register: last_dump_file_name_command
       changed_when: false
 
     - name: "{{ borg_repository_name }} - Get the last dump file created date"
       ansible.builtin.shell:
         cmd: "stat -c %y *.sql | cut -d' ' -f1 | sort | tail -n1"
-        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ borg_repository_dump_path | regex_replace('^\\/', '') }}"
+        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
       register: last_dump_date_command
       changed_when: false
 
@@ -104,7 +104,7 @@
     - name: "{{ borg_repository_name }} - Get the last line from the last dump"
       ansible.builtin.shell:
         cmd: "tail -n 1 {{ last_dump_file_name_command.stdout }}"
-        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ borg_repository_dump_path | regex_replace('^\\/', '') }}"
+        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
       register: dump_last_line_command
       changed_when: false
 
@@ -122,4 +122,4 @@
       ansible.builtin.command:
         cmd: "borg umount mount_point"
         chdir: "{{ borg_repository_parent_folder }}"
-  when: item.borg_repository_dump_path is defined
+  when: item.sql_dump is defined
