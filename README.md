@@ -17,6 +17,9 @@ BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
 BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=mypassphrase
 BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE=mypassphrase
 BORG_REPOSITORY_SEMAPHORE_PASSPHRASE=mypassphrase
+BORG_REPOSITORY_JELLYFIN_PASSPHRASE=mypassphrase
+BORG_REPOSITORY_ELASTICSEARCH_PASSPHRASE=mypassphrase
+BORG_REPOSITORY_IMMICH_PASSPHRASE=mypassphrase
 ```
 
 Create a hosts file in the repository folder. Update the variable values as needed.
