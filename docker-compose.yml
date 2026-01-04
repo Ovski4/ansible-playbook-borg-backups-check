@@ -3,7 +3,7 @@ name: 'borg_backup_checks'
 services:
 
   play:
-    image: ovski/ansible:v2.13.3
+    image: ovski/ansible:v2.20.0
     volumes:
       - ./:/var/www/ansible
       - ./hosts:/etc/ansible/hosts
