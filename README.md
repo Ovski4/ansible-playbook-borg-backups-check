@@ -1,53 +1,71 @@
 Ansible playbook to check borg backups
 ======================================
 
-Roles to check if borg backups are created daily as expected. Tested on ubuntu server 22.04.
+An Ansible playbook to ensure Borg backup repositories are created daily on 1 or multiple remote servers. Additionally it can also make sure `.sql` dump files are present in the borg repositories. An email will be sent over SMTP in case of failure.
 
-Setup
-------
+Requirements
+------------
 
-### .env
+- Ansible or Docker
+- SSH access to the target backup servers
 
-Create a .env file in the repository folder. Update the env variable value as needed.
+Usage with Docker
+-----------------
 
-```
-SSH_KEY=/home/user/.ssh/id_rsa
-BACKUP_USER=backup_user
-BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
-BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=mypassphrase
-BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE=mypassphrase
-BORG_REPOSITORY_SEMAPHORE_PASSPHRASE=mypassphrase
-BORG_REPOSITORY_JELLYFIN_PASSPHRASE=mypassphrase
-BORG_REPOSITORY_ELASTICSEARCH_PASSPHRASE=mypassphrase
-BORG_REPOSITORY_IMMICH_PASSPHRASE=mypassphrase
-```
+1. Create a `hosts` file with a `backup_servers` group. Example:
 
-Create a hosts file in the repository folder. Update the variable values as needed.
-
-### hosts
-
-```yml
+```yaml
 all:
-
   hosts:
-
-    my_server:
-      ansible_host: xx.xxx.xxx.xxx
+    34_133_111_133:
+      ansible_host: 34.133.111.133
       ansible_connection: ssh
       ansible_user: root
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-
+      ansible_ssh_private_key_file: /root/.ssh/id_rsa
   children:
-
     backup_servers:
       hosts:
-        my_server:
+        34_133_111_133:
 ```
 
-### Run the play
+Alternatively, you can update the `main.yml` hosts key directly.
+
+2. Create a `.env` file referencing variables that should not be committed in the `docker-compose.yml` file. Example:
+
+```
+MAIL_HOST=smtp.us.mailgun.org
+MAIL_PORT=587
+MAIL_PASSWORD=very_secure_password
+MAIL_FROM=user.from@some-domain.com
+MAIL_TO=User To <user.to@some-domain.com>
+SSH_KEY=/home/my_username/.ssh/id_rsa
+BACKUP_USER=backup_user
+BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
+BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=xxxxxxxxx
+BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
+```
+
+3. Update the `group_vars/backup_servers.yml` file with your repository configurations.
+
+```
+backup_configs:
+  - borg_repository_name: jellyfin
+    borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+
+  - borg_repository_name: nextcloud
+    borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
+    sql_dump:
+      dump_folder_path_within_borg_repository: /var/docker_volumes/nextcloud
+```
+
+With the above configuration, the playbook will check:
+- if a borg repository named 'jellyfin' has been created in the past 2 days.
+- if a borg repository named 'nextcloud' has been created in the past 2 days, with a `.sql` dump created as well.
+
+4. Update the `docker-compose.yml` file by adding missing environment variable to the command.
+5. Run the Ansible playbook using docker:
 
 ```bash
-ansible-playbook /var/www/ansible/main.yml
-# or
-docker compose run play
+docker compose run --rm --remove-orphans play
 ```

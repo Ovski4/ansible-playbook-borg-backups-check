@@ -1,27 +1,11 @@
 ---
-# Below are examples, replace them with your own backup configurations
+# Below are examples. Replace them with your own backup configurations
 
 backup_configs:
   - borg_repository_name: jellyfin
     borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
 
-  - borg_repository_name: elasticsearch
-    borg_repository_passphrase: "{{ borg_repository_elasticsearch_passphrase }}"
-
-  - borg_repository_name: semaphore
-    borg_repository_passphrase: "{{ borg_repository_semaphore_passphrase }}"
-
-  - borg_repository_name: baptiste_accounts
-    borg_repository_passphrase: "{{ borg_repository_baptiste_accounts_passphrase }}"
-    sql_dump:
-      dump_folder_path_within_borg_repository: /var/docker_volumes/expenses_categorizer
-
   - borg_repository_name: nextcloud
     borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
     sql_dump:
       dump_folder_path_within_borg_repository: /var/docker_volumes/nextcloud
-
-  - borg_repository_name: immich
-    borg_repository_passphrase: "{{ borg_repository_immich_passphrase }}"
-    sql_dump:
-      dump_folder_path_within_borg_repository: /var/docker_volumes/immich

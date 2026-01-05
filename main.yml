@@ -25,7 +25,7 @@
             from: "{{ mail_from }}"
             to: "{{ mail_to }}"
             subject: Some backup checks failed
-            body: "Some backup checks failed on server. Please check the semaphore logs for more details."
+            body: "Some backup checks failed. Check the playbook logs for more details."
 
         - name: Report failure
           ansible.builtin.fail:
