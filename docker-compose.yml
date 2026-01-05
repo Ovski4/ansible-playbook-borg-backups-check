@@ -14,7 +14,7 @@ services:
         -e mail_port=${MAIL_PORT}
         -e mail_password=${MAIL_PASSWORD}
         -e mail_from=${MAIL_FROM}
-        -e mail_to=${MAIL_TO}
+        -e mail_to='${MAIL_TO}'
         -e backup_user=${BACKUP_USER}
         -e borg_repository_parent_folder=${BORG_REPOSITORY_PARENT_FOLDER}
         -e borg_repository_nextcloud_passphrase=${BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE}
