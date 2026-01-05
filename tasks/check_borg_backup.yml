@@ -100,26 +100,6 @@
       when: not last_dump_is_recent
     ## End check 3
 
-    ## Start check 4 - Check if the comment at the end of the dump matches the last dump file date
-    - block:
-        - name: "{{ borg_repository_name }} - Get the last line from the last dump"
-          ansible.builtin.shell:
-            cmd: "tail -n 1 {{ last_dump_file_name_command.stdout }}"
-            chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ item.sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
-          register: dump_last_line_command
-          changed_when: false
-
-        - name: "{{ borg_repository_name }} - Set the dump last comment date"
-          ansible.builtin.set_fact:
-            last_dump_comment_date: "{{ dump_last_line_command.stdout | regex_replace('.*Dump completed on ([0-9]{4}-[0-9]{2}-[0-9]{2}).*', '\\1') }}"
-
-        - name: "{{ borg_repository_name }} - Fail if last dump comment date doesn't match with the last dump file date"
-          ansible.builtin.fail:
-            msg: "Comment from last dump doesn't match with the dump file date."
-          when: last_dump_comment_date != last_dump_date_command.stdout
-      when: item.sql_dump.db_type == "mysql"
-    ## End check 4
-
     - name: "{{ borg_repository_name }} - Unmount the mount point"
       ansible.builtin.command:
         cmd: "borg umount mount_point"

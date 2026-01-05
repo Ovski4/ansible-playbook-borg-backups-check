@@ -14,17 +14,14 @@ backup_configs:
   - borg_repository_name: baptiste_accounts
     borg_repository_passphrase: "{{ borg_repository_baptiste_accounts_passphrase }}"
     sql_dump:
-      db_type: mysql
       dump_folder_path_within_borg_repository: /var/docker_volumes/expenses_categorizer
 
   - borg_repository_name: nextcloud
     borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
     sql_dump:
-      db_type: mysql
       dump_folder_path_within_borg_repository: /var/docker_volumes/nextcloud
 
   - borg_repository_name: immich
     borg_repository_passphrase: "{{ borg_repository_immich_passphrase }}"
     sql_dump:
-      db_type: postgresql
       dump_folder_path_within_borg_repository: /var/docker_volumes/immich
