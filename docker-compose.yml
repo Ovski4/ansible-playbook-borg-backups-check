@@ -18,11 +18,7 @@ services:
         -e backup_user=${BACKUP_USER}
         -e borg_repository_parent_folder=${BORG_REPOSITORY_PARENT_FOLDER}
         -e borg_repository_nextcloud_passphrase=${BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE}
-        -e borg_repository_baptiste_accounts_passphrase=${BORG_REPOSITORY_BAPTISTE_ACCOUNTS_PASSPHRASE}
-        -e borg_repository_semaphore_passphrase=${BORG_REPOSITORY_SEMAPHORE_PASSPHRASE}
         -e borg_repository_jellyfin_passphrase=${BORG_REPOSITORY_JELLYFIN_PASSPHRASE}
-        -e borg_repository_elasticsearch_passphrase=${BORG_REPOSITORY_ELASTICSEARCH_PASSPHRASE}
-        -e borg_repository_immich_passphrase=${BORG_REPOSITORY_IMMICH_PASSPHRASE}
     environment:
       ANSIBLE_HOST_KEY_CHECKING: "False"
     profiles: [ansible]
