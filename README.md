@@ -1,13 +1,15 @@
 Ansible playbook to check borg backups
 ======================================
 
-An Ansible playbook to ensure Borg backup repositories are created daily on 1 or multiple remote servers. Additionally it can also make sure `.sql` dump files are present in the borg repositories. An email will be sent over SMTP in case of failure.
+An Ansible playbook to ensure Borg backup repositories are created daily on 1 or multiple remote servers. Additionally it can also make sure `.sql` dump files are present in the Borg repositories. An email will be sent over SMTP in case of failure.
 
 Requirements
 ------------
 
 - Ansible or Docker
 - SSH access to the target backup servers
+
+> This playbook assumes all Borg repos are located in the same folder.
 
 Usage with Docker
 -----------------
@@ -60,10 +62,10 @@ backup_configs:
 ```
 
 With the above configuration, the playbook will check:
-- if a borg repository named 'jellyfin' has been created in the past 2 days.
-- if a borg repository named 'nextcloud' has been created in the past 2 days, with a `.sql` dump created as well.
+- if a Borg repository named 'jellyfin' has been created in the past 2 days.
+- if a Borg repository named 'nextcloud' has been created in the past 2 days, with a `.sql` dump created as well.
 
-4. Update the `docker-compose.yml` file by adding missing environment variable to the command.
+4. Update the `docker-compose.yml` file by adding missing environment variables to the command.
 5. Run the Ansible playbook using docker:
 
 ```bash
