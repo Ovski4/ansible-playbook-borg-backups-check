@@ -6,13 +6,13 @@
         - name: "Check backup"
           ansible.builtin.include_tasks:
             file: ./tasks/check_borg_backup.yml
-          loop: "{{ backup_configs }}"
+          loop: "{{ borg_repositories }}"
           vars:
-            borg_repository_name: "{{ item.borg_repository_name }}"
-            borg_repository_passphrase: "{{ item.borg_repository_passphrase }}"
-            borg_repository_dump_path: "{{ item.borg_repository_dump_path | default(omit) }}"
+            borg_repository_name: "{{ item.name }}"
+            borg_repository_passphrase: "{{ item.passphrase }}"
+            borg_repository_dump_path: "{{ item.sql_dump_folder_path | default(omit) }}"
           loop_control:
-              label: "{{ item.borg_repository_name }}"
+              label: "{{ item.name }}"
       rescue:
         - name: Send a mail on failure
           community.general.mail:

@@ -1,11 +1,12 @@
 ---
 # Below are examples. Replace them with your own backup configurations
 
-backup_configs:
-  - borg_repository_name: jellyfin
-    borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+borg_repositories:
+  - name: jellyfin
+    passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+    file_paths_to_check:
+      - /var/docker_volumes/jellyfin/config/root/default/Movies/options.xml
 
-  - borg_repository_name: nextcloud
-    borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
-    sql_dump:
-      dump_folder_path_within_borg_repository: /var/docker_volumes/nextcloud
+  - name: nextcloud
+    passphrase: "{{ borg_repository_nextcloud_passphrase }}"
+    sql_dump_folder_path: /var/docker_volumes/nextcloud

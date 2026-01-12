@@ -42,7 +42,6 @@ MAIL_PASSWORD=very_secure_password
 MAIL_FROM=user.from@some-domain.com
 MAIL_TO=user.to@some-domain.com
 SSH_KEY=/home/my_username/.ssh/id_rsa
-BACKUP_USER=backup_user
 BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
 BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=xxxxxxxxx
 BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
@@ -50,23 +49,27 @@ BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
 
 3. Update the `group_vars/backup_servers.yml` file with your repository configurations.
 
-```
-backup_configs:
-  - borg_repository_name: jellyfin
-    borg_repository_passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+- The `file_paths_to_check` key can be used to verify some files are present in the repository as you would expect. The playbook will fail if the listed files are absent.
+- The `sql_dump_folder_path` key can be used to ensure a `.sql` dump file was created at the same date as the last repository, in the specified path.
 
-  - borg_repository_name: nextcloud
-    borg_repository_passphrase: "{{ borg_repository_nextcloud_passphrase }}"
-    sql_dump:
-      dump_folder_path_within_borg_repository: /var/docker_volumes/nextcloud
+```yml
+borg_repositories:
+  - name: jellyfin
+    passphrase: "{{ borg_repository_jellyfin_passphrase }}"
+    file_paths_to_check:
+      - /var/docker_volumes/jellyfin/config/root/default/Movies/options.xml
+
+  - name: nextcloud
+    passphrase: "{{ borg_repository_nextcloud_passphrase }}"
+    sql_dump_folder_path: /var/docker_volumes/nextcloud # the folder path within the borg repo
 ```
 
 With the above configuration, the playbook will check:
-- if a Borg repository named 'jellyfin' has been created in the past 2 days.
+- if a Borg repository named 'jellyfin' has been created in the past 2 days, and if the options.xml file is present in the backup at the specified path.
 - if a Borg repository named 'nextcloud' has been created in the past 2 days, with a `.sql` dump created as well.
 
 4. Update the `docker-compose.yml` file by adding missing environment variables to the command.
-5. Run the Ansible playbook using docker:
+5. Run the Ansible playbook using Docker:
 
 ```bash
 docker compose run --rm --remove-orphans play

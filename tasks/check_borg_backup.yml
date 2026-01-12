@@ -62,31 +62,35 @@
     msg: "Time after check: {{ time_after_check }}"
 ## End check 2
 
+- name: "{{ borg_repository_name }} - Set the mount point folder path as fact"
+  ansible.builtin.set_fact:
+    mount_point_path: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point"
+
+- name: "{{ borg_repository_name }} - Creates mount_point directory"
+  ansible.builtin.file:
+    path: "{{ mount_point_path }}"
+    state: directory
+
+- name: "{{ borg_repository_name }} - Mount the last backup from the list"
+  ansible.builtin.command:
+    cmd: "borg mount {{ borg_repository_name }}::{{ last_borg_backup_name }} mount_point"
+    chdir: "{{ borg_repository_parent_folder }}"
+  environment:
+    BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
+
+## Start check 3 - Check if the last dump inside the last borg backup is recent enough (today or yesterday)
 - block:
-    - name: "{{ borg_repository_name }} - Creates mount_point directory"
-      ansible.builtin.file:
-        path: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point"
-        state: directory
-
-    ## Start check 3 - Check if the last dump inside the last borg backup is recent enough (today or yesterday)
-    - name: "{{ borg_repository_name }} - Mount the last backup from the list"
-      ansible.builtin.command:
-        cmd: "borg mount {{ borg_repository_name }}::{{ last_borg_backup_name }} mount_point"
-        chdir: "{{ borg_repository_parent_folder }}"
-      environment:
-        BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
-
     - name: "{{ borg_repository_name }} - Get the last dump file name"
       ansible.builtin.shell:
         cmd: "ls -t *.sql | head -n1"
-        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ item.sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
+        chdir: "{{ mount_point_path }}/{{ item.sql_dump_folder_path | regex_replace('^\\/', '') }}"
       register: last_dump_file_name_command
       changed_when: false
 
     - name: "{{ borg_repository_name }} - Get the last dump file created date"
       ansible.builtin.shell:
         cmd: "stat -c %y *.sql | cut -d' ' -f1 | sort | tail -n1"
-        chdir: "{{ borg_repository_parent_folder | regex_replace('\\/$', '') }}/mount_point/{{ item.sql_dump.dump_folder_path_within_borg_repository | regex_replace('^\\/', '') }}"
+        chdir: "{{ mount_point_path }}/{{ item.sql_dump_folder_path | regex_replace('^\\/', '') }}"
       register: last_dump_date_command
       changed_when: false
 
@@ -98,10 +102,31 @@
       ansible.builtin.fail:
         msg: "Last dump is too old: {{ last_dump_date_command.stdout }}"
       when: not last_dump_is_recent
-    ## End check 3
+  when: item.sql_dump_folder_path is defined
+## End check 3
 
-    - name: "{{ borg_repository_name }} - Unmount the mount point"
-      ansible.builtin.command:
-        cmd: "borg umount mount_point"
-        chdir: "{{ borg_repository_parent_folder }}"
-  when: item.sql_dump is defined
+## Start check 4 - Check if  files exist in the last borg backup
+- block:
+    - name: "{{ borg_repository_name }} - Register stats on file"
+      stat:
+        path: "{{ mount_point_path }}{{ file_path }}"
+      register: file_path_stats
+      loop: "{{ item.file_paths_to_check }}"
+      loop_control:
+        loop_var: file_path
+
+    - name: "{{ borg_repository_name }} - Fail if some witness files are missing"
+      ansible.builtin.fail:
+        msg: "File {{ file_path_stat.invocation.module_args.path }} is missing in the last borg backup {{ last_borg_backup_name }}"
+      when: not file_path_stat.stat.exists
+      loop: "{{ file_path_stats.results }}"
+      loop_control:
+        loop_var: file_path_stat
+        label: "{{ file_path_stat.invocation.module_args.path }}"
+  when: item.file_paths_to_check is defined
+## End check 4
+
+- name: "{{ borg_repository_name }} - Unmount the mount point"
+  ansible.builtin.command:
+    cmd: "borg umount mount_point"
+    chdir: "{{ borg_repository_parent_folder }}"
