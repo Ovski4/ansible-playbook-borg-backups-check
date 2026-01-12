@@ -1,7 +1,5 @@
 ---
 - hosts: backup_servers
-  become: true
-  become_user: "{{ backup_user }}"
 
   tasks:
     - block:
