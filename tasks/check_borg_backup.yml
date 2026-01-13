@@ -73,7 +73,7 @@
 
 - name: "{{ borg_repository_name }} - Mount the last backup from the list"
   ansible.builtin.command:
-    cmd: "borg mount {{ borg_repository_name }}::{{ last_borg_backup_name }} mount_point"
+    cmd: "borg mount -o uid={{ ansible_facts.user_uid }},gid={{ ansible_facts.user_gid }} {{ borg_repository_name }}::{{ last_borg_backup_name }} mount_point"
     chdir: "{{ borg_repository_parent_folder }}"
   environment:
     BORG_PASSPHRASE: "{{ borg_repository_passphrase }}"
