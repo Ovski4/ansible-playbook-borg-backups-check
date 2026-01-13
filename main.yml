@@ -13,6 +13,19 @@
             borg_repository_dump_path: "{{ item.sql_dump_folder_path | default(omit) }}"
           loop_control:
               label: "{{ item.name }}"
+
+        - name: Send a mail on success
+          community.general.mail:
+            host: "{{ mail_host }}"
+            port: "{{ mail_port }}"
+            password: "{{ mail_password }}"
+            username: "{{ mail_from }}"
+            from: "{{ mail_from }}"
+            to: "{{ mail_to }}"
+            subject: Backup checks succeeded
+            body: "All backup checks succeeded. Check the playbook logs for more details."
+          when: send_email_on_success | default(false)
+
       rescue:
         - name: Send a mail on failure
           community.general.mail:
@@ -24,6 +37,7 @@
             to: "{{ mail_to }}"
             subject: Some backup checks failed
             body: "Some backup checks failed. Check the playbook logs for more details."
+          when: send_email_on_failure | default(false)
 
         - name: Report failure
           ansible.builtin.fail:

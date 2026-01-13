@@ -51,8 +51,12 @@ BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
 
 - The `file_paths_to_check` key can be used to verify some files are present in the repository as you would expect. The playbook will fail if the listed files are absent.
 - The `sql_dump_folder_path` key can be used to ensure a `.sql` dump file was created at the same date as the last repository, in the specified path.
+- The `send_email_on_failure` key must be set to true if you want to be alerted of failures by email.
+- The `send_email_on_success` key must be set to true if you want to be alerted of success by email.
 
 ```yml
+send_email_on_failure: true
+send_email_on_success: false
 borg_repositories:
   - name: jellyfin
     passphrase: "{{ borg_repository_jellyfin_passphrase }}"

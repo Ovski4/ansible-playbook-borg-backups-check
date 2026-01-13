@@ -1,6 +1,8 @@
 ---
 # Below are examples. Replace them with your own backup configurations
 
+send_email_on_failure: true
+send_email_on_success: true
 borg_repositories:
   - name: jellyfin
     passphrase: "{{ borg_repository_jellyfin_passphrase }}"
