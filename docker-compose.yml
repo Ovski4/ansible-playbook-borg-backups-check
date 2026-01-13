@@ -7,7 +7,7 @@ services:
     volumes:
       - ./:/var/www/ansible
       - ./hosts:/etc/ansible/hosts
-      - ${SSH_KEY}:/root/.ssh/id_rsa
+      - ${SSH_KEY}:/etc/ansible/ssh_private_key_file:ro
     command: >
       ansible-playbook /var/www/ansible/main.yml
         -e mail_host=${MAIL_HOST}

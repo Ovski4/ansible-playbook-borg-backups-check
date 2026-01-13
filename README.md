@@ -24,7 +24,7 @@ all:
       ansible_connection: ssh
       ansible_user: root
       ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
-      ansible_ssh_private_key_file: /root/.ssh/id_rsa
+      ansible_ssh_private_key_file: /etc/ansible/ssh_private_key_file
   children:
     backup_servers:
       hosts:
