@@ -35,16 +35,17 @@ Alternatively, you can update the `main.yml` hosts key directly.
 
 2. Create a `.env` file referencing variables that should not be committed in the `docker-compose.yml` file. Example:
 
-```
+```bash
+SSH_KEY=/home/my_username/.ssh/id_rsa
+BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
+BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=xxxxxxxxx
+BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
+# MAIL_* variables can be omitted if send_email_on_failure or send_email_on_success are both set to 'false'
 MAIL_HOST=smtp.us.mailgun.org
 MAIL_PORT=587
 MAIL_PASSWORD=very_secure_password
 MAIL_FROM=user.from@some-domain.com
 MAIL_TO=user.to@some-domain.com
-SSH_KEY=/home/my_username/.ssh/id_rsa
-BORG_REPOSITORY_PARENT_FOLDER=/home/backup_user/borg_repositories/
-BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=xxxxxxxxx
-BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
 ```
 
 3. Update the `group_vars/backup_servers/config.yml` file with your repository configurations.
@@ -94,12 +95,7 @@ ansible-vault create group_vars/backup_servers/vault.yml
 ```
 
 Copy the variables in the `vault.yml` file with the correct values:
-```
-mail_host: smtp.us.mailgun.org
-mail_port: 587
-mail_password: very_secure_password
-mail_from: user.from@some-domain.com
-mail_to: user.to@some-domain.com
+```yml
 borg_repository_parent_folder: /home/backup_user/borg_repositories/
 borg_repository_nextcloud_passphrase: xxxxxxxxx
 borg_repository_jellyfin_passphrase: xxxxxxxxx
@@ -108,6 +104,12 @@ borg_repository_semaphore_passphrase: xxxxxxxxx
 borg_repository_elasticsearch_passphrase: xxxxxxxxx
 borg_repository_immich_passphrase: xxxxxxxxx
 borg_repository_beszel_passphrase: xxxxxxxxx
+# mail_* variables can be omitted if send_email_on_failure or send_email_on_success are both set to 'false'
+mail_host: smtp.us.mailgun.org
+mail_port: 587
+mail_password: very_secure_password
+mail_from: user.from@some-domain.com
+mail_to: user.to@some-domain.com
 ```
 
 Then run the command with the specific docker compose file:
