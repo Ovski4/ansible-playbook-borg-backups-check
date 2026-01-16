@@ -1,2 +1,4 @@
-hosts
 .env
+.ansible_vault_pass
+hosts
+group_vars/backup_servers/vault.yml

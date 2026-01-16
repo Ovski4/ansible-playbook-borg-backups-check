@@ -47,7 +47,7 @@ BORG_REPOSITORY_NEXTCLOUD_PASSPHRASE=xxxxxxxxx
 BORG_REPOSITORY_JELLYFIN_PASSPHRASE=xxxxxxxxx
 ```
 
-3. Update the `group_vars/backup_servers.yml` file with your repository configurations.
+3. Update the `group_vars/backup_servers/config.yml` file with your repository configurations.
 
 - The `file_paths_to_check` key can be used to verify some files are present in the repository as you would expect. The playbook will fail if the listed files are absent.
 - The `sql_dump_folder_path` key can be used to ensure a `.sql` dump file was created at the same date as the last repository, in the specified path.
@@ -77,4 +77,40 @@ With the above configuration, the playbook will check:
 
 ```bash
 docker compose run --rm --remove-orphans play
+```
+
+Store sensitive variables in a vault.yml file
+---------------------------------------------
+
+Instead of creating a `.env` file, we can create a vault file with encrypted variables inside.
+
+```
+# First we store the password in a file
+nano .ansible_vault_pass
+chmod 600 .ansible_vault_pass
+
+# Create a vault file using the same password
+ansible-vault create group_vars/backup_servers/vault.yml
+```
+
+Copy the variables in the `vault.yml` file with the correct values:
+```
+mail_host: smtp.us.mailgun.org
+mail_port: 587
+mail_password: very_secure_password
+mail_from: user.from@some-domain.com
+mail_to: user.to@some-domain.com
+borg_repository_parent_folder: /home/backup_user/borg_repositories/
+borg_repository_nextcloud_passphrase: xxxxxxxxx
+borg_repository_jellyfin_passphrase: xxxxxxxxx
+borg_repository_baptiste_accounts_passphrase: xxxxxxxxx
+borg_repository_semaphore_passphrase: xxxxxxxxx
+borg_repository_elasticsearch_passphrase: xxxxxxxxx
+borg_repository_immich_passphrase: xxxxxxxxx
+borg_repository_beszel_passphrase: xxxxxxxxx
+```
+
+Then run the command with the specific docker compose file:
+```bash
+docker compose -f docker-compose-with-vault.yml run --rm --remove-orphans play
 ```

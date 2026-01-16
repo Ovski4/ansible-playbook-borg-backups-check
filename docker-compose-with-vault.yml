@@ -1,0 +1,15 @@
+name: 'borg_backup_checks'
+
+services:
+
+  play:
+    image: ovski/ansible:v2.20.0
+    volumes:
+      - ./:/var/www/ansible
+      - ./hosts:/etc/ansible/hosts
+      - ./.ansible_vault_pass:/etc/ansible/.ansible_vault_pass:ro
+      - ${SSH_KEY}:/etc/ansible/ssh_private_key_file:ro
+    command: ansible-playbook /var/www/ansible/main.yml --vault-password-file /etc/ansible/.ansible_vault_pass
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+    profiles: [ansible]
